@@ -1,52 +1,80 @@
 package it.unibz.jpantiuchina.friends.server;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 
-@Path("/get-my-friends")
+@Path("/")
 public final class WebService
 {
-    private static final Map<String, Map<String, UserData>> groups = new HashMap<String, Map<String, UserData>>();
+    private static final Map<String, List<String>> userFriendsByUserPhone = new HashMap<>();
+    private static final Map<String, UserData>     userInfoByUserPhone    = new HashMap<>();
 
 
     @GET
+    @Path("report-my-location-and-get-my-friend-locations")
     @Produces(MediaType.APPLICATION_JSON)
-    public static Collection<UserData> getMyFriends(@QueryParam("group") String groupName,
-                                                    @QueryParam("name")  String userName,
-                                                    @QueryParam("lat")   double lat,
-                                                    @QueryParam("lng")   double lng)
+    public static Collection<UserData> getMyFriends(@QueryParam("my-phone") String myPhoneNumber,
+                                                    @QueryParam("my-lat")   double myLat,
+                                                    @QueryParam("my-lng")   double myLng)
     {
-        // Get the group by the group name or create if null
-        Map<String, UserData> group = groups.get(groupName);
-        if (group == null)
+        // First, update my info
+
+        UserData myInfo = userInfoByUserPhone.get(myPhoneNumber);
+
+        if (myInfo == null)
         {
-            group = new HashMap<String, UserData>();
-            groups.put(groupName, group);
+            myInfo = new UserData();
+            myInfo.setPhoneNumber(myPhoneNumber);
+            userInfoByUserPhone.put(myPhoneNumber, myInfo);
         }
 
-        // Get the user from the group by name or create
-        UserData user = group.get(userName);
-        if (user == null)
+        myInfo.setLastUpdated(Instant.now());
+        myInfo.setLat(myLat);
+        myInfo.setLng(myLng);
+
+
+        // Next, find my info of all my friends info and report it if exists
+
+        List<UserData> myFriendInfos = new ArrayList<>();
+
+        List<String> myFriendPhoneNumbers = userFriendsByUserPhone.get(myPhoneNumber);
+
+        if (myFriendPhoneNumbers != null)
         {
-            user = new UserData();
-            user.setName(userName);
-            group.put(userName, user);
+            for (String myFriendPhoneNumber : myFriendPhoneNumbers)
+            {
+                UserData myFriendInfo = userInfoByUserPhone.get(myFriendPhoneNumber);
+                if (myFriendInfo != null)
+                    myFriendInfos.add(myFriendInfo);
+            }
         }
 
-        // Update user details
-        user.setLastUpdated(Instant.now());
-        user.setLat(lat);
-        user.setLng(lng);
+        return myFriendInfos;
+    }
 
-        // Return all group to
-        return group.values();
+
+    @POST
+    @Path("tell-my-friend-phone-numbers")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public static void registerMe(@QueryParam("my-phone") String myPhoneNumber, List<String> myFriendList)
+    {
+        for (String myFriend : myFriendList)
+        {
+            System.out.println("Reg me " + myPhoneNumber + ' ' + myFriend);
+
+        }
+        userFriendsByUserPhone.put(myPhoneNumber, myFriendList);
     }
 }

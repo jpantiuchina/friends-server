@@ -28,7 +28,7 @@ public final class Main
         startServer();
         System.out.println("Friends Server started");
         System.out.println("WADL available at " + BASE_URI + "/application.wadl");
-        System.out.println("Try " + BASE_URI + "/get-my-friends?group=my-group&name=Katy&lat=56&lng=25");
+        System.out.println("Try " + BASE_URI + "/report-my-location-and-get-my-friend-locations?my-phone=1&my-lat=2&my-lng=3");
     }
 }
 

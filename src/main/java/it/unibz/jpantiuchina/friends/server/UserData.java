@@ -5,20 +5,20 @@ import java.time.Instant;
 
 public final class UserData
 {
-    private String name;
+    private String phoneNumber;
     private double lat;
     private double lng;
     private Instant lastUpdated;
 
     @SuppressWarnings("unused")
-    public String getName()
+    public String getPhoneNumber()
     {
-        return name;
+        return phoneNumber;
     }
 
-    public void setName(String name)
+    public void setPhoneNumber(String phoneNumber)
     {
-        this.name = name;
+        this.phoneNumber = phoneNumber;
     }
 
     @SuppressWarnings("unused")
