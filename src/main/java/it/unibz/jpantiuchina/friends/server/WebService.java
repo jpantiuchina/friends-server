@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -18,7 +19,7 @@ import javax.ws.rs.core.MediaType;
 @Path("/")
 public final class WebService
 {
-    private static final Map<String, List<String>> userFriendsByUserPhone = new HashMap<>();
+    private static final Map<String, Set<String>>  userFriendsByUserPhone = new HashMap<>();
     private static final Map<String, UserData>     userInfoByUserPhone    = new HashMap<>();
 
 
@@ -49,14 +50,16 @@ public final class WebService
 
         List<UserData> myFriendInfos = new ArrayList<>();
 
-        List<String> myFriendPhoneNumbers = userFriendsByUserPhone.get(myPhoneNumber);
+        Set<String> myFriendPhoneNumbers = userFriendsByUserPhone.get(myPhoneNumber);
 
         if (myFriendPhoneNumbers != null)
         {
             for (String myFriendPhoneNumber : myFriendPhoneNumbers)
             {
+                Set<String> myFriendFriends = userFriendsByUserPhone.get(myFriendPhoneNumber);
                 UserData myFriendInfo = userInfoByUserPhone.get(myFriendPhoneNumber);
-                if (myFriendInfo != null)
+
+                if (myFriendInfo != null && myFriendFriends != null && myFriendFriends.contains(myPhoneNumber))
                     myFriendInfos.add(myFriendInfo);
             }
         }
@@ -68,7 +71,7 @@ public final class WebService
     @POST
     @Path("tell-my-friend-phone-numbers")
     @Consumes(MediaType.APPLICATION_JSON)
-    public static void registerMe(@QueryParam("my-phone") String myPhoneNumber, List<String> myFriendList)
+    public static void registerMe(@QueryParam("my-phone") String myPhoneNumber, Set<String> myFriendList)
     {
         for (String myFriend : myFriendList)
         {
