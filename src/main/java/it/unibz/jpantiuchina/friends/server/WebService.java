@@ -2,7 +2,9 @@ package it.unibz.jpantiuchina.friends.server;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,9 @@ public final class WebService
     {
         // First, update my info
 
+        System.out.println("Get friends " + myPhoneNumber + ' ' + myLat + ' ' + myLng);
+
+
         UserData myInfo = userInfoByUserPhone.get(myPhoneNumber);
 
         if (myInfo == null)
@@ -46,21 +51,26 @@ public final class WebService
         myInfo.setLng(myLng);
 
 
-        // Next, find my info of all my friends info and report it if exists
+        // Next, find info of all my friends and report it if exists
 
-        List<UserData> myFriendInfos = new ArrayList<>();
+        ArrayList<UserData> myFriendInfos = new ArrayList<>();
 
-        Set<String> myFriendPhoneNumbers = userFriendsByUserPhone.get(myPhoneNumber);
+        Set<String> phonesOfMyFriends = userFriendsByUserPhone.get(myPhoneNumber);
 
-        if (myFriendPhoneNumbers != null)
+        if (phonesOfMyFriends != null)
         {
-            for (String myFriendPhoneNumber : myFriendPhoneNumbers)
+            for (String myFriendPhoneNumber : phonesOfMyFriends)
             {
                 Set<String> myFriendFriends = userFriendsByUserPhone.get(myFriendPhoneNumber);
                 UserData myFriendInfo = userInfoByUserPhone.get(myFriendPhoneNumber);
 
+                System.out.println("myFriendInfo " + myFriendInfo);
+
                 if (myFriendInfo != null && myFriendFriends != null && myFriendFriends.contains(myPhoneNumber))
+                {
                     myFriendInfos.add(myFriendInfo);
+                    System.out.println("YES");
+                }
             }
         }
 
@@ -73,11 +83,8 @@ public final class WebService
     @Consumes(MediaType.APPLICATION_JSON)
     public static void registerMe(@QueryParam("my-phone") String myPhoneNumber, Set<String> myFriendList)
     {
-        for (String myFriend : myFriendList)
-        {
-            System.out.println("Reg me " + myPhoneNumber + ' ' + myFriend);
+        System.out.println("Reg me " + myPhoneNumber + ' ' + Arrays.toString(myFriendList.toArray()));
 
-        }
         userFriendsByUserPhone.put(myPhoneNumber, myFriendList);
     }
 }

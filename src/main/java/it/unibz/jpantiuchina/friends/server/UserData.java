@@ -53,4 +53,15 @@ public final class UserData
     {
         this.lastUpdated = lastUpdated;
     }
+
+    @Override
+    public String toString()
+    {
+        return "UserData{" +
+                "phoneNumber='" + phoneNumber + '\'' +
+                ", lat=" + lat +
+                ", lng=" + lng +
+                ", lastUpdated=" + lastUpdated +
+                '}';
+    }
 }
